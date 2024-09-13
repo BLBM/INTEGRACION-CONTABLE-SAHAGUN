@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const integracionPredialRoutes = require('./routes/integracionPredialRoutes');
+const ejecutarServicioPeriodicoPredial = require('./timerService');  
 
 const app = express();
 const PORT = 7006;
@@ -15,4 +16,7 @@ app.use(integracionPredialRoutes);
 
 app.listen(PORT, () => {
     console.log(`Servidor escuchando en el puerto ${PORT}`);
+
+    // Llama la función del servicio periódico
+    //ejecutarServicioPeriodicoPredial();
 });
