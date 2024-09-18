@@ -4,12 +4,10 @@ const axios = require('axios');
 
 const dominio =  "http://localhost:7006";
 
-
-exports.prueba = async (req, res) => {
+exports.pruebaPredial = async (req, res) => {
   res.send('Api funcional integracion Contable Sahagun');
 };
   
-
 
 exports.listaRecibosCaja = async (req, res) => {
   try {
@@ -20,8 +18,8 @@ exports.listaRecibosCaja = async (req, res) => {
     rc.consecutivo,
     rc.observacion,
     rc.registrado_por,
-    rc.valor_pagado ,
-    rc.liquidacion_predio ,
+    rc.valor_pagado,
+    rc.liquidacion_predio,
     rc.tipo,
     flp.valor,
     flp.valor_descuento,
@@ -39,13 +37,19 @@ FROM
     LEFT JOIN sujeto_pasivo sp ON rc.sujeto_pasivo = sp.consecutivo
     LEFT JOIN tipo_identificacion ti ON sp.tipo_identificacion = ti.codigo
     LEFT JOIN direccion d ON sp.consecutivo = d.sujeto_pasivo
-    LEFT JOIN fechas_liquidacion_predio flp on flp.liquidacion_predio = rc.liquidacion_predio 
+    LEFT JOIN fechas_liquidacion_predio flp ON flp.liquidacion_predio = rc.liquidacion_predio
 WHERE
     rc.estado = 'PAGADO'
     AND ric.recibo_caja IS NULL
-    AND ric.chequeo_envio IS null
-    and rc.valor_pagado  = flp.valor 
-    and rc.tipo = 'PREDIOS'   
+    AND ric.chequeo_envio IS NULL
+    AND rc.valor_pagado = flp.valor
+    AND rc.tipo = 'PREDIOS'
+    AND NOT EXISTS (
+        SELECT 1
+        FROM detalle_liquidacion_predio dlp
+        WHERE dlp.liquidacion_predio = rc.liquidacion_predio
+        AND dlp.accesorio IN (205, 726, 727)
+    )
 GROUP BY
     rc.sujeto_pasivo,
     sp.razon_social,
@@ -55,8 +59,8 @@ GROUP BY
     rc.observacion,
     rc.fecha_recaudo,
     rc.tipo,
-    rc.valor_pagado ,
-    rc.liquidacion_predio ,
+    rc.valor_pagado,
+    rc.liquidacion_predio,
     flp.valor,
     flp.valor_descuento,
     sp.segundo_nombre,
@@ -508,19 +512,7 @@ exports.registrarReciboCajaEnviados = async (req, res) => {
   };
 
 
-// Define la función que ejecutará el servicio cada 30 minutos
-const ejecutarServicioPeriodico = () => {
-  // Configura un intervalo para ejecutar el servicio cada 30 minutos (30 * 60 * 1000 ms)
-  setInterval(async () => {
-      try {
-          // Ejecuta el servicio
-          await axios.get(`${dominio}/integracionContableSahagun/listaRecibosCaja`);
-          console.log('Servicio de envio de transacciones para integracion contable se a ejecutado.');
-      } catch (error) {
-          console.error('Error al ejecutar el servicio:', error);
-      }
-  }, 30 * 60 * 1000);
-};
+
     
   
    

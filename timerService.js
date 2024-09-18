@@ -18,4 +18,4 @@ const ejecutarServicioPeriodicoPredial = () => {
   };
 
   // Exporta la función
-module.exports = ejecutarServicioPeriodico;
+module.exports = ejecutarServicioPeriodicoPredial;
