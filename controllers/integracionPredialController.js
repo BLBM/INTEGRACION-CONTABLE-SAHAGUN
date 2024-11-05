@@ -2,7 +2,7 @@ const client = require('../dataBase/db');
 const axios = require('axios');
 
 
-const dominio =  "http://localhost:7006";
+const dominio =  "https://sahagun.realidad5.com";
 
 exports.pruebaPredial = async (req, res) => {
   res.send('Api funcional integracion Contable Sahagun');
@@ -68,13 +68,13 @@ GROUP BY
     sp.segundo_apellido,
     sp.identificacion,
     ti.codigo
-   limit 1;
+   limit 30;
     `;
     //AND rc.liquidacion_predio = '188'
     /*
     CREDENCIALES DE PRODUCCION
 
-    const baseURL = "https://sahagun.software-genesis.com/genesis/";
+    const baseURL = "https://sahagun.software-genesis.com/genesis/webresources/tesoreria";
     const usuario = "predial";
     const token = "25ca9445b0aca8ee36dc5523591bb820";
 
@@ -85,9 +85,9 @@ GROUP BY
     const token = "b19f009eb0a94d6832b98cb3fe5a7605";
     */
 
-    const baseURL = "https://prueba.software-genesis.com/genesis/webresources/tesoreria";
-    const usuario = "APIPrueba";
-    const token = "b19f009eb0a94d6832b98cb3fe5a7605";
+    const baseURL = "https://sahagun.software-genesis.com/genesis/webresources/tesoreria";
+    const usuario = "predial";
+    const token = "25ca9445b0aca8ee36dc5523591bb820";
     const result = await client.query(query);
     const registrosTerceros = result.rows.map(row => {
       const tipo = row.codigo === 2 ? 2 : 1;
@@ -136,7 +136,7 @@ GROUP BY
     // Enviar respuesta al cliente
       //res.json(resultados);
     // Llamada a la funcion para procesar el recibo caja y sus detalles
-    const procesarDetalleReciboscaja = await procesarDetalleReciboCaja(valoresReciboCaja, `${baseURL}/registro_ingresos?tipo=11`, usuario, token);
+    const procesarDetalleReciboscaja = await procesarDetalleReciboCaja(valoresReciboCaja, `${baseURL}/registro_ingresos?tipo=12`, usuario, token);
 
     res.status(200).json(procesarDetalleReciboscaja);
 
@@ -198,9 +198,9 @@ async function enviarDetalleReciboCaja(registro, url, usuario, token) {
 
       // Formatear la fecha al formato "dd/MM/yyyy"
       const fecha = new Date(objeto.fecha_registro);
-      const dia = "21";//String(fecha.getDate()).padStart(2, '0');
-      const mes = "11";//String(fecha.getMonth() + 1).padStart(2, '0'); // Los meses son 0-indexed
-      const año = "2023";//fecha.getFullYear();
+      const dia = String(fecha.getDate()).padStart(2, '0');
+      const mes = String(fecha.getMonth() + 1).padStart(2, '0'); // Los meses son 0-indexed
+      const año = fecha.getFullYear();
       const fechaFormateada = `${dia}/${mes}/${año}`;
 
         return {
@@ -411,14 +411,23 @@ exports.detalleReciboCaja = async (req, res) => {
       } else if ([204,720].includes(accesorio)) {
         tipo = 'D';
         codigo = '203';
-      } else if ([205, 215, 217, 218, 702, 704, 706, 708, 710, 712, 726, 728].includes(accesorio)) {
+      } else if ([ 215, 228, 702, 704, 706, 708, 710, 712, 728].includes(accesorio)) {
         tipo = 'S';
         if (tipoPredio === '00') {
-          codigo = 276
+          codigo = '276'
         } else if (tipoPredio === '01') {
-          codigo = 275
+          codigo = '275'
         }else{
-          codigo = 275
+          codigo = '275'
+        }
+      } else if ([ 217, 218 ,99916].includes(accesorio)) {
+        tipo = 'S';
+        if (tipoPredio === '00') {
+          codigo = '278'
+        } else if (tipoPredio === '01') {
+          codigo = '277'
+        }else{
+          codigo = '277'
         }
       }
 
