@@ -9,7 +9,6 @@ const secretKey = Buffer.from('2025202420232022', 'utf-8');
 const dominio =  "http://localhost:7006";
 
 exports.pruebaNotificacionIae = async (req, res) => {
-    console.log('probando logs de la apis')
     res.send('Api funcional notificacion de correo IAE');
   };
 
@@ -17,7 +16,8 @@ exports.pruebaNotificacionIae = async (req, res) => {
 // Exportación de la función principal
 exports.notificacionInscripcionNegocioIae = async (req, res) => {
   const { numeroInscripcion,tipoCorreo } = req.query; // Captura el `id` desde la URL
-  const idInscripcion = decrypt(numeroInscripcion);
+  //const idInscripcion = decrypt(numeroInscripcion);
+  const idInscripcion =numeroInscripcion;
   const query = `SELECT * FROM inscripcion_oi_iae ioi WHERE numero_tramite_inscripcion = $1;`;
   const values = [idInscripcion];
   
@@ -51,13 +51,13 @@ async function enviarCorreo(transporter, emailUsuario, idInscripcion, fechaTrami
     let asuntoCorreo
     let htmlContent;
     if (tipoCorreo === 'inscripcion') {
-        asuntoCorreo =  'Inscripción de Negocio';
+        asuntoCorreo =  `Constancia radicación de solicitud inscripción RIT - ICA No. ${idInscripcion} Secretaría de Hacienda de Sahagún`;
         htmlContent = emailTemplates.confirmacionInscripcion({
             idInscripcion,
             fechaTramite,
         });
     } else if (tipoCorreo === 'aprobacion') {
-        asuntoCorreo = 'Aprobacion de Negocio',
+        asuntoCorreo = `Aprobación de solicitud inscripción RIT - ICA No. ${idInscripcion} Secretaría de Hacienda de Sahagún`;
         htmlContent = emailTemplates.confirmacionAprobacion({
             idInscripcion,
             fechaTramite,
@@ -67,13 +67,18 @@ async function enviarCorreo(transporter, emailUsuario, idInscripcion, fechaTrami
   const mailOptions = {
       from: 'veneno156@gmail.com',
       to: emailUsuario,
-      subject: 'Confirmación de Inscripción de Negocio',
+      subject: asuntoCorreo,
       html: htmlContent,
       attachments: [
           {
               filename: 'logoRealsit.png',
               path: './assets/logoRealsit.png', // Ruta local de la imagen
               cid: 'logoRealsit' // Este `cid` se usa para hacer referencia en el HTML
+          },
+          {
+            filename: 'archivo.pdf',
+            path: './assets/archivo.pdf', // Ruta al archivo PDF
+            contentType: 'application/pdf'
           }
       ]
   };
